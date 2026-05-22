@@ -13,26 +13,58 @@ export class WebDAVClient {
 		options: RequestInit = {}
 	): Promise<Response> {
 		const url = new URL(path, this.config.baseUrl).toString();
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
-
 		const auth = btoa(`${this.config.username}:${this.config.password}`);
 
-		try {
-			const response = await fetch(url, {
-				method,
-				signal: controller.signal,
-				headers: {
-					Authorization: `Basic ${auth}`,
-					"Content-Type": "application/xml; charset=utf-8",
-					...options.headers,
-				},
-				...options,
-			});
-			return response;
-		} finally {
-			clearTimeout(timeoutId);
+		const maxRetries = 3;
+		const delays = [1000, 2000, 4000]; // Exponential backoff: 1s, 2s, 4s
+
+		for (let attempt = 0; attempt <= maxRetries; attempt++) {
+			const controller = new AbortController();
+			const timeoutId = setTimeout(() => controller.abort(), this.config.timeout);
+
+			try {
+				const response = await fetch(url, {
+					method,
+					signal: controller.signal,
+					headers: {
+						Authorization: `Basic ${auth}`,
+						"Content-Type": "application/xml; charset=utf-8",
+						...options.headers,
+					},
+					...options,
+				});
+
+				// Non-transient errors: fail immediately
+				if (!response.ok && [401, 403, 404].includes(response.status)) {
+					return response;
+				}
+
+				// Success or non-retryable error
+				if (response.ok || attempt === maxRetries) {
+					return response;
+				}
+
+				// Transient error: retry after delay
+				if (attempt < maxRetries) {
+					await sleep(delays[attempt]);
+					continue;
+				}
+
+				return response;
+			} catch (error) {
+				// Network errors (timeout, ECONNRESET, etc.) — retry
+				if (attempt < maxRetries) {
+					await sleep(delays[attempt]);
+					continue;
+				}
+				throw error;
+			} finally {
+				clearTimeout(timeoutId);
+			}
 		}
+
+		// Should never reach here, but TypeScript needs a return
+		throw new Error(`Request failed after ${maxRetries} retries`);
 	}
 
 	async propfind(remotePath: string): Promise<WebDAVResource[]> {
@@ -167,4 +199,8 @@ export class WebDAVClient {
 		
 		return path;
 	}
+}
+
+function sleep(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
 }

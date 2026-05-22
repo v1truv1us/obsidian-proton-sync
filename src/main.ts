@@ -4,6 +4,7 @@ import { SettingsTab } from "./ui/settings-tab";
 import { WebDAVClient } from "./transport/webdav-client";
 import { previewSyncCommand } from "./commands/preview";
 import { pullCommand } from "./commands/pull";
+import { pushCommand } from "./commands/push";
 
 export default class WebDAVSyncPlugin extends Plugin {
 	settings: SyncSettings;
@@ -34,6 +35,14 @@ export default class WebDAVSyncPlugin extends Plugin {
 			name: "Pull from Remote",
 			callback: async () => {
 				await pullCommand(this);
+			},
+		});
+
+		this.addCommand({
+			id: "push-to-remote",
+			name: "Push to Remote",
+			callback: async () => {
+				await pushCommand(this);
 			},
 		});
 
