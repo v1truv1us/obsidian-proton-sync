@@ -110,7 +110,7 @@ describe("WebDAVClient", () => {
 				"http://localhost:8080/vault/notes.md",
 				expect.objectContaining({
 					method: "PUT",
-					body: data,
+					body: data.buffer,
 					headers: expect.objectContaining({
 						"Content-Type": "application/octet-stream",
 					}),
