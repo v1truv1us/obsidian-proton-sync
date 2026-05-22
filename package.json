@@ -28,6 +28,7 @@
     "obsidian": "latest",
     "tslib": "^2.6.0",
     "typescript": "^5.4.0",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.0",
+    "webdav-server": "^2.6.2"
   }
 }
