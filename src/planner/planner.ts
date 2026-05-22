@@ -80,8 +80,11 @@ export function computePlan(
 		}
 
 		// Both sides exist — compare
-		const localChanged = !lastSnap || !snapshotsEqual(localSnap, lastSnap);
-		const remoteChanged = !lastSnap || !snapshotsEqual(remoteSnap, lastSnap);
+		// At this point, both localSnap and remoteSnap are non-null
+		const localFile = localSnap!;
+		const remoteFile = remoteSnap!;
+		const localChanged = !lastSnap || !snapshotsEqual(localFile, lastSnap);
+		const remoteChanged = !lastSnap || !snapshotsEqual(remoteFile, lastSnap);
 
 		if (!localChanged && !remoteChanged) {
 			plan.skips.push({ type: "skip", path, reason: "No changes since last sync" });
@@ -94,8 +97,8 @@ export function computePlan(
 			plan.conflicts.push({
 				type: "conflict",
 				path,
-				localSnapshot: localSnap,
-				remoteSnapshot: remoteSnap,
+				localSnapshot: localFile,
+				remoteSnapshot: remoteFile,
 			});
 		}
 	}

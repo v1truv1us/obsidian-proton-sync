@@ -2,6 +2,8 @@ import { Plugin, Notice } from "obsidian";
 import { DEFAULT_SETTINGS, type SyncSettings } from "./settings";
 import { SettingsTab } from "./ui/settings-tab";
 import { WebDAVClient } from "./transport/webdav-client";
+import { previewSyncCommand } from "./commands/preview";
+import { pullCommand } from "./commands/pull";
 
 export default class WebDAVSyncPlugin extends Plugin {
 	settings: SyncSettings;
@@ -16,6 +18,22 @@ export default class WebDAVSyncPlugin extends Plugin {
 			name: "Validate Connection",
 			callback: async () => {
 				await this.validateConnection();
+			},
+		});
+
+		this.addCommand({
+			id: "preview-sync",
+			name: "Preview Sync Plan",
+			callback: async () => {
+				await previewSyncCommand(this);
+			},
+		});
+
+		this.addCommand({
+			id: "pull-from-remote",
+			name: "Pull from Remote",
+			callback: async () => {
+				await pullCommand(this);
 			},
 		});
 
