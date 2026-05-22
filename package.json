@@ -20,12 +20,14 @@
   "author": "John Ferguson (john.ferguson@v1truv1us.dev)",
   "license": "MIT",
   "devDependencies": {
+    "@types/jsdom": "^28.0.3",
     "@types/node": "^20.14.0",
+    "@vitest/coverage-v8": "^1.6.0",
     "esbuild": "^0.21.0",
+    "jsdom": "^29.1.1",
     "obsidian": "latest",
     "tslib": "^2.6.0",
     "typescript": "^5.4.0",
-    "vitest": "^1.6.0",
-    "@vitest/coverage-v8": "^1.6.0"
+    "vitest": "^1.6.0"
   }
 }
